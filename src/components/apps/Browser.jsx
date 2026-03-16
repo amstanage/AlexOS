@@ -73,22 +73,27 @@ export default function Browser({ initialUrl }) {
   const navigateTo = useCallback((url) => {
     const normalized = normalizeUrl(url)
     if (!normalized) return
-    setBlocked(false)
-    setLoading(true)
+
     const rewritten = tryRewriteUrl(normalized)
     const finalUrl = rewritten || normalized
-    const isBlocked = rewritten === null || isLikelyBlocked(finalUrl)
-    if (isBlocked) { setBlocked(true); setLoading(false) }
+    const willBlock = rewritten === null || isLikelyBlocked(finalUrl)
+
+    // Blocked sites open directly in a real browser tab
+    if (willBlock) {
+      window.open(normalized, '_blank', 'noopener,noreferrer')
+      return
+    }
+
+    setBlocked(false)
+    setLoading(true)
     setActiveUrl(finalUrl)
     setDisplayUrl(normalized.replace(/^https?:\/\//, ''))
     setHistory(prev => [...prev.slice(0, historyIndex + 1), finalUrl])
     setHistoryIndex(prev => prev + 1)
     if (timeoutRef.current) clearTimeout(timeoutRef.current)
-    if (!isBlocked) {
-      timeoutRef.current = setTimeout(() => {
-        setLoading(prev => { if (prev) setBlocked(true); return false })
-      }, 8000)
-    }
+    timeoutRef.current = setTimeout(() => {
+      setLoading(prev => { if (prev) setBlocked(true); return false })
+    }, 8000)
   }, [historyIndex])
 
   useEffect(() => {

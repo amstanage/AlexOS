@@ -7,16 +7,22 @@ export function useWindowManager() {
   const [windows, setWindows] = useState([])
   const constraintsRef = useRef(null)
 
+  // Apps that allow multiple instances
+  const MULTI_INSTANCE = ['browser']
+
   const openWindow = useCallback((appId, props) => {
     setWindows(prev => {
-      const existing = prev.find(w => w.appId === appId && !w.closed)
-      if (existing) {
-        zIndexCounter++
-        return prev.map(w =>
-          w.id === existing.id
-            ? { ...w, minimized: false, zIndex: zIndexCounter, props: props || w.props }
-            : w
-        )
+      // For single-instance apps, reuse existing window
+      if (!MULTI_INSTANCE.includes(appId)) {
+        const existing = prev.find(w => w.appId === appId && !w.closed)
+        if (existing) {
+          zIndexCounter++
+          return prev.map(w =>
+            w.id === existing.id
+              ? { ...w, minimized: false, zIndex: zIndexCounter, props: props || w.props }
+              : w
+          )
+        }
       }
 
       windowIdCounter++
