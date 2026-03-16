@@ -8,7 +8,7 @@ const BOOKMARKS = [
 ]
 
 const BLOCKED_SITES = [
-  'twitter.com', 'x.com', 'facebook.com', 'instagram.com',
+  'github.com', 'twitter.com', 'x.com', 'facebook.com', 'instagram.com',
   'reddit.com', 'linkedin.com', 'tiktok.com', 'twitch.tv', 'discord.com',
   'netflix.com', 'spotify.com', 'amazon.com', 'apple.com',
 ]

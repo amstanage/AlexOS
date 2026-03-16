@@ -1,4 +1,4 @@
-import { motion, useMotionValue, animate } from 'framer-motion'
+import { motion, useMotionValue, animate, useDragControls } from 'framer-motion'
 import { useEffect } from 'react'
 
 const APP_SIZES = {
@@ -44,6 +44,7 @@ export default function Window({
 
   const x = useMotionValue(0)
   const y = useMotionValue(0)
+  const dragControls = useDragControls()
 
   useEffect(() => {
     if (maximized) {
@@ -81,13 +82,20 @@ export default function Window({
       exit={{ opacity: 0, scale: 0.95 }}
       transition={{ duration: 0.08 }}
       drag={!maximized}
+      dragControls={dragControls}
+      dragListener={false}
       dragMomentum={false}
       dragConstraints={constraintsRef}
       dragElastic={0}
       onPointerDown={() => onFocus(id)}
     >
-      {/* Title bar */}
-      <div style={styles.titleBar}>
+      {/* Title bar — this is the drag handle */}
+      <div
+        style={styles.titleBar}
+        onPointerDown={(e) => {
+          if (!maximized) dragControls.start(e)
+        }}
+      >
         <div style={styles.titleLeft}>
           <span style={styles.titleIcon}>{icon}</span>
           <span style={styles.titleText}>{title}</span>
@@ -152,6 +160,7 @@ const styles = {
     justifyContent: 'space-between',
     padding: '0 3px',
     cursor: 'grab',
+    touchAction: 'none',
   },
   titleLeft: {
     display: 'flex',
@@ -159,6 +168,7 @@ const styles = {
     gap: '3px',
     overflow: 'hidden',
     flex: 1,
+    pointerEvents: 'none',
   },
   titleIcon: {
     fontSize: '12px',
